@@ -1,4 +1,5 @@
-function skillsMenber() {
-    const skills = ['HTML', 'CSS', 'JavaScript', 'React', 'Node', 'Python', 'Django', 'Flask'];
+function skillsMember() {
+    var skills = ["HTML", "CSS", "JavaScript", "React"];
     return skills;
+
 }
