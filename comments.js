@@ -1,31 +1,34 @@
-// create web server
-var express = require('express');
-var app = express();
-var fs = require('fs');
-var bodyParser = require('body-parser');
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
+// Create web server 
+// 1. create web server
+// 2. create routes
+// 3. create logic for routes
 
-app.get('/', function(req, res) {
-    res.sendFile(__dirname + "/" + "comments.html");
+const express = require('express');
+const bodyParser = require('body-parser');
+const { randomBytes } = require('crypto');
+
+const app = express();
+app.use(bodyParser.json());
+
+// store comments
+const commentsByPostId = {};
+
+// routes
+app.get('/posts/:id/comments', (req, res) => {
+  res.send(commentsByPostId[req.params.id] || []);
 });
 
-app.post('/comments', urlencodedParser, function(req, res) {
-    // Prepare output in JSON format
-    response = {
-        name: req.body.name,
-        comment: req.body.comment
-    };
-    console.log(response);
-    res.end(JSON.stringify(response));
+app.post('/posts/:id/comments', (req, res) => {
+  const commentId = randomBytes(4).toString('hex');
+  const { content } = req.body;
 
-    fs.appendFile('comments.json', JSON.stringify(response), function(err) {
-        if (err) throw err;
-        console.log('Saved!');
-    });
+  const comments = commentsByPostId[req.params.id] || [];
+  comments.push({ id: commentId, content });
+  commentsByPostId[req.params.id] = comments;
+
+  res.status(201).send(comments);
 });
 
-var server = app.listen(8081, function() {
-    var host = server.address().address;
-    var port = server.address().port;
-    console.log("Example app listening at http://%s:%s", host, port);
+app.listen(4001, () => {
+  console.log('Listening on 4001');
 });
